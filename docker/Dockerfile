@@ -18,9 +18,13 @@ RUN apt-get update && apt-get install -y curl perl make libdbi-perl locales && \
     locale-gen en_US.UTF-8 && \
     yes | ./install-yb-voyager && \
     . ~/.yb-voyager.rc && \
+    # CVE-2023-7272: Replace vulnerable parsson-1.1.2 with fixed 1.1.3
+    rm -f /opt/yb-voyager/debezium-server/lib/parsson-1.1.2.jar && \
+    wget -nv -O /opt/yb-voyager/debezium-server/lib/parsson-1.1.3.jar \
+        https://repo1.maven.org/maven2/org/eclipse/parsson/parsson/1.1.3/parsson-1.1.3.jar && \
     apt-get remove -y gcc curl make wget git && \
     rm -rf /yb-voyager /usr/share/icons /usr/share/fonts /usr/share/doc && \
     rm -rf /root/go /root/.cache /tmp/go && \
     apt-get clean
 COPY --from=0 $HOME/go/bin/dlv /usr/local/bin
-CMD [“yb-voyager”]
+CMD ["yb-voyager"]
